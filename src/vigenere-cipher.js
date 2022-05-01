@@ -1,35 +1,75 @@
-const { NotImplementedError } = require('../extensions/index.js');
+const { NotImplementedError } = require("../extensions/index.js");
 
 /**
  * Implement class VigenereCipheringMachine that allows us to create
  * direct and reverse ciphering machines according to task description
- * 
+ *
  * @example
- * 
+ *
  * const directMachine = new VigenereCipheringMachine();
- * 
+ *
  * const reverseMachine = new VigenereCipheringMachine(false);
- * 
+ *
  * directMachine.encrypt('attack at dawn!', 'alphonse') => 'AEIHQX SX DLLU!'
- * 
+ *
  * directMachine.decrypt('AEIHQX SX DLLU!', 'alphonse') => 'ATTACK AT DAWN!'
- * 
+ *
  * reverseMachine.encrypt('attack at dawn!', 'alphonse') => '!ULLD XS XQHIEA'
- * 
+ *
  * reverseMachine.decrypt('AEIHQX SX DLLU!', 'alphonse') => '!NWAD TA KCATTA'
- * 
+ *
  */
 class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+  constructor(isDirect = true) {
+    this.isDirect = isDirect;
+    this.alphabet = [];
+    for (let i = 65; i <= 90; i++) {
+      this.alphabet.push(String.fromCharCode(i));
+    }
   }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+
+  genereteKey(message, key) {
+    let count = 0;
+    return message.replace(/[A-Z]/g, () => {
+      let rez = key[count++];
+      if (count === key.length) count = 0;
+      return rez.toUpperCase();
+    });
+  }
+
+  encrypt(encryptedMessage, key) {
+    if (typeof encryptedMessage !== "string" || typeof key !== "string")
+      throw new Error("Incorrect arguments!");
+      encryptedMessage = encryptedMessage.toUpperCase();
+    key = this.genereteKey(encryptedMessage, key);
+    encryptedMessage = encryptedMessage.replace(/[A-Z]/g, (item, index) => {
+      let newAlphabet = this.alphabet
+        .slice(this.alphabet.indexOf(key[index]))
+        .concat(this.alphabet)
+        .slice(0, 26);
+      return newAlphabet[this.alphabet.indexOf(item)];
+    });
+    if (this.isDirect) return encryptedMessage;
+    else return encryptedMessage.split("").reverse().join("");
+  }
+
+  decrypt(decryptedMessage, key) {
+    if (typeof decryptedMessage !== "string" || typeof key !== "string")
+      throw new Error("Incorrect arguments!");
+      decryptedMessage = decryptedMessage.toUpperCase();
+    key = this.genereteKey(decryptedMessage, key);
+    decryptedMessage = decryptedMessage.replace(/[A-Z]/g, (item, index) => {
+      let newAlphabet = this.alphabet
+        .slice(this.alphabet.indexOf(key[index]))
+        .concat(this.alphabet)
+        .slice(0, 26);
+      return this.alphabet[newAlphabet.indexOf(item)];
+    });
+    if (this.isDirect) return decryptedMessage;
+    else return decryptedMessage.split("").reverse().join("");
   }
 }
 
 module.exports = {
-  VigenereCipheringMachine
+  VigenereCipheringMachine,
 };
